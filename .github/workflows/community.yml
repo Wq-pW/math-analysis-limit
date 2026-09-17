@@ -1,0 +1,44 @@
+name: Update game leaderboard
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, deleted, labeled, unlabeled]
+  push:
+    branches: [main]
+    paths:
+      - 'community/**'
+      - '.github/workflows/community.yml'
+      - '.github/ISSUE_TEMPLATE/**'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: game-community-snapshot
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    if: github.repository == 'Wq-pW/math-analysis-limit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: read
+    steps:
+      - name: Read trusted source from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check parsers and ranking
+        run: node --test community/community.test.mjs
+      - name: Rebuild the shared snapshot
+        # Issue 正文仅通过 API 作为 JSON 读取，绝不进入 shell 源码。
+        run: node community/sync.mjs --publish
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

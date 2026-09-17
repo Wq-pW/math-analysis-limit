@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="极限的严格定义——数学分析第一章 ε-N 推理游戏">
+<title>极限的严格定义 · 数学分析第一章</title>
+<style>
+  :root{
+    --bg:#f6f2ea; --ink:#23201a; --muted:#6f6757; --paper:#fffdf7;
+    --accent:#2b4a6f; --accent-2:#1f6f6b; --gold:#c98a2b;
+    --ok:#2e7d4f; --ok-bg:#eaf5ee; --bad:#b33a3a; --bad-bg:#fbeeee;
+    --line:#e3dccb; --shadow:0 10px 30px rgba(50,42,24,.10);
+    --serif:"Noto Serif SC","Songti SC","STSong",Georgia,"Times New Roman",serif;
+    --sans:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--sans); color:var(--ink); background:
+      radial-gradient(1200px 600px at 80% -10%, #efe7d5 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #e7efe9 0%, transparent 55%),
+      var(--bg);
+    min-height:100vh; line-height:1.7;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:24px 18px 72px}
+  .screen{display:block}
+  .hidden{display:none !important}
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:16px;
+    box-shadow:var(--shadow); padding:26px 26px 24px}
+  .kicker{letter-spacing:.16em; font-size:12px; color:var(--accent-2); font-weight:700;
+    text-transform:uppercase; margin:0 0 6px}
+  h1{font-family:var(--serif); font-size:34px; line-height:1.25; margin:0 0 8px}
+  h2{font-family:var(--serif); font-size:24px; margin:0 0 12px}
+  .subtitle{font-family:var(--serif); font-size:17px; color:var(--muted); margin:0 0 18px}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px}
+  .chip{font-size:12.5px; color:#5b5344; background:#f1ecdf; border:1px solid var(--line);
+    border-radius:999px; padding:4px 11px}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:var(--sans); font-size:15px; font-weight:600; cursor:pointer;
+    border:1px solid transparent; border-radius:12px; padding:11px 18px;
+    transition:transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease}
+  .btn:hover{transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn-primary{background:var(--accent); color:#fff; box-shadow:0 6px 16px rgba(43,74,111,.25)}
+  .btn-primary:hover{background:#24405f}
+  .btn-ghost{background:transparent; color:var(--accent); border-color:#cdc4ae}
+  .btn-ghost:hover{background:#f0ebdf}
+  .btn-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px}
+  .prose{font-size:16px; color:#33302a}
+  .prose p{margin:0 0 12px}
+  .lead{font-family:var(--serif); font-size:17.5px}
+
+  /* progress */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
+  .step{font-size:13px; color:var(--muted); font-weight:600}
+  .bar{height:6px; background:#e8e1d1; border-radius:999px; overflow:hidden; margin-bottom:18px}
+  .bar>i{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    border-radius:999px; transition:width .4s ease}
+
+  .story-tag{display:inline-block; font-size:12px; color:var(--accent-2); font-weight:700;
+    letter-spacing:.1em; margin-bottom:10px}
+  .story-text{font-family:var(--serif); font-size:18px; color:#2c2821}
+  .story-text p{margin:0 0 14px}
+
+  /* question */
+  .q-context{font-family:var(--serif); font-size:16px; color:#4a4438; background:#f6f1e6;
+    border-left:3px solid var(--accent-2); border-radius:8px; padding:12px 16px; margin:0 0 16px}
+  .q-stem{font-size:18px; font-weight:700; margin:0 0 16px}
+  .opt{display:block; width:100%; text-align:left; font-family:var(--sans); font-size:15.5px;
+    background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:13px 15px;
+    margin-bottom:10px; cursor:pointer; transition:border-color .12s, background .12s, transform .12s}
+  .opt:hover:not(:disabled){border-color:#b9ad92; transform:translateX(2px)}
+  .opt .key{display:inline-block; min-width:24px; height:24px; line-height:24px; text-align:center;
+    font-weight:700; font-size:13px; color:#6f6757; background:#f1ecdf; border-radius:7px; margin-right:10px}
+  .opt:disabled{cursor:default}
+  .opt.correct{border-color:var(--ok); background:var(--ok-bg); animation:pop .35s ease}
+  .opt.correct .key{background:var(--ok); color:#fff}
+  .opt.wrong{border-color:var(--bad); background:var(--bad-bg); animation:shake .4s ease}
+  .opt.wrong .key{background:var(--bad); color:#fff}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+  @keyframes rise{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+  .feedback{margin-top:14px; animation:rise .3s ease}
+  .feedback.ok{border:1px solid #cfe5d6; background:var(--ok-bg); border-radius:12px; padding:14px 16px}
+  .feedback.bad{border:1px solid #f0cfcf; background:var(--bad-bg); border-radius:12px; padding:14px 16px}
+  .feedback .flag{font-weight:700; display:block; margin-bottom:4px}
+  .feedback.ok .flag{color:var(--ok)}
+  .feedback.bad .flag{color:var(--bad)}
+  .hintbox{margin-top:12px; border:1px dashed #c9b26a; background:#fdf7e6; border-radius:12px; padding:12px 14px}
+  .hintbox b{color:#8a6a1f}
+
+  /* result */
+  .score-big{text-align:center; padding:10px 0 6px}
+  .score-big .num{font-family:var(--serif); font-size:64px; font-weight:700; color:var(--accent); line-height:1}
+  .score-big .of{color:var(--muted); font-size:16px}
+  .verdict{text-align:center; font-family:var(--serif); font-size:18px; margin:10px 0 20px}
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0}
+  .stat{background:#f7f3ea; border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center}
+  .stat .n{font-size:24px; font-weight:700; color:var(--ink)}
+  .stat .l{font-size:12.5px; color:var(--muted)}
+  .review{list-style:none; margin:8px 0 0; padding:0}
+  .review li{padding:9px 0; border-bottom:1px dashed var(--line); font-size:14.5px}
+  .review li:last-child{border-bottom:none}
+  .pill{display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:1px 8px; margin-right:8px}
+  .pill.r{background:#f3e4c2; color:#8a6a1f}
+  .pill.h{background:#e3d9f2; color:#5b3f8a}
+  .field{margin-bottom:12px}
+  .field label{display:block; font-size:13px; font-weight:600; color:var(--muted); margin-bottom:5px}
+  .field input,.field textarea{width:100%; font-family:var(--sans); font-size:15px; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; background:#fff}
+  .field input:focus,.field textarea:focus{outline:none; border-color:var(--accent)}
+  .stars{display:inline-flex; gap:4px; font-size:24px; cursor:pointer}
+  .stars span{color:#d9cfb8; transition:color .12s}
+  .stars span.on{color:var(--gold)}
+
+  /* board */
+  .board-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+  .updated{font-size:12.5px; color:var(--muted)}
+  table{width:100%; border-collapse:collapse; font-size:14px}
+  th,td{text-align:left; padding:9px 8px; border-bottom:1px solid var(--line)}
+  th{color:var(--muted); font-weight:600; font-size:12.5px}
+  td.rank{font-weight:700; color:var(--accent)}
+  .stars-sm{color:var(--gold); letter-spacing:1px}
+  .comment-item{border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; background:#fff}
+  .comment-item .meta{font-size:12.5px; color:var(--muted); margin-bottom:4px}
+  .comment-item .body{font-size:14.5px}
+  .empty{color:var(--muted); font-style:italic; padding:18px 0; text-align:center}
+  .note{font-size:12.5px; color:var(--muted); margin-top:12px}
+  a{color:var(--accent)}
+  footer{margin-top:34px; text-align:center; font-size:12.5px; color:var(--muted)}
+  @media (max-width:560px){
+    h1{font-size:27px}.score-big .num{font-size:48px}.stats{grid-template-columns:repeat(3,1fr)}
+    .card{padding:20px 16px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main id="app">
+
+    <!-- 封面 -->
+    <section id="landing" class="screen">
+      <div class="card">
+        <p class="kicker">数学分析 · 第一章</p>
+        <h1 id="landing-title">极限的严格定义</h1>
+        <p class="subtitle" id="landing-subtitle">把「趋近」变成一个经得起推敲的定义</p>
+        <div class="chips" id="landing-chips"></div>
+        <div class="prose" id="landing-intro"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="start-btn">开始推理</button>
+          <button class="btn btn-ghost" id="board-btn">排行榜与留言</button>
+          <button class="btn btn-ghost" id="help-btn">玩法说明</button>
+        </div>
+      </div>
+      <footer>灵感参考自「迷雾中的探险」· 成绩为自报学习记录，不作为考核凭证</footer>
+    </section>
+
+    <!-- 故事页 -->
+    <section id="story" class="screen hidden">
+      <div class="topbar"><span class="step" id="story-step"></span></div>
+      <div class="bar"><i id="story-bar"></i></div>
+      <div class="card">
+        <span class="story-tag" id="story-tag"></span>
+        <div class="story-text" id="story-text"></div>
+        <div class="btn-row"><button class="btn btn-primary" id="story-next">继续</button></div>
+      </div>
+    </section>
+
+    <!-- 题目页 -->
+    <section id="question" class="screen hidden">
+      <div class="topbar"><span class="step" id="q-step"></span>
+        <button class="btn btn-ghost" id="hint-btn" style="padding:7px 12px;font-size:13px">看提示</button>
+      </div>
+      <div class="bar"><i id="q-bar"></i></div>
+      <div class="card">
+        <div class="q-context" id="q-context"></div>
+        <p class="q-stem" id="q-stem"></p>
+        <div id="q-options"></div>
+        <div id="q-feedback"></div>
+        <div class="btn-row hidden" id="q-next-row">
+          <button class="btn btn-primary" id="q-next">继续</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 结算页 -->
+    <section id="result" class="screen hidden">
+      <div class="card">
+        <p class="kicker">本关结算</p>
+        <h2 id="res-title"></h2>
+        <div class="score-big"><span class="num" id="res-score"></span> <span class="of">/ 100</span></div>
+        <div class="verdict" id="res-verdict"></div>
+        <div class="stats" id="res-stats"></div>
+        <h2 style="font-size:18px" id="res-review-title">值得回看的推理</h2>
+        <ul class="review" id="res-review"></ul>
+        <hr style="border:none;border-top:1px solid var(--line);margin:20px 0">
+        <h2 style="font-size:18px">上传成绩 / 留言</h2>
+        <p class="note" style="margin:4px 0 14px">可填写显示名与评论（可选），再登录 GitHub 确认发布。公开内容包括你的 GitHub 账号、显示名、成绩与评论。</p>
+        <div class="field"><label for="nick">显示名（≤24字）</label>
+          <input id="nick" maxlength="24" placeholder="例如：无名氏"></div>
+        <div class="field"><label>星级（可选）</label>
+          <div class="stars" id="stars"><span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span></div></div>
+        <div class="field"><label for="cmt">评论（≤500字，可选）</label>
+          <textarea id="cmt" rows="3" maxlength="500" placeholder="这道题哪处最让你茅塞顿开？"></textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="upload-btn">上传成绩</button>
+          <button class="btn btn-ghost" id="comment-btn">只写评论</button>
+          <button class="btn btn-ghost" id="again-btn">再玩一次</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 排行榜 -->
+    <section id="board" class="screen hidden">
+      <div class="card">
+        <div class="board-head">
+          <h2 style="margin:0">排行榜与留言</h2>
+          <button class="btn btn-ghost" id="refresh-btn" style="padding:7px 12px;font-size:13px">刷新</button>
+        </div>
+        <p class="updated" id="board-updated"></p>
+        <h2 style="font-size:17px;margin-top:14px">成绩榜</h2>
+        <div id="board-entries"></div>
+        <h2 style="font-size:17px;margin-top:18px">玩家留言</h2>
+        <div id="board-comments"></div>
+        <p class="note">榜单从本仓库的公开 Issues 自动生成，更新通常需要几十秒至几分钟；关闭投稿帖可撤回对应记录。</p>
+        <div class="btn-row"><button class="btn btn-ghost" id="back-home1">返回封面</button></div>
+      </div>
+    </section>
+
+    <!-- 玩法说明 -->
+    <section id="help" class="screen hidden">
+      <div class="card">
+        <h2>玩法说明</h2>
+        <div class="prose">
+          <p>沿着历史线索逐页推进：你会看到芝诺悖论、无穷小的争论，以及柯西、魏尔斯特拉斯如何把「极限」锻造成 <b>ε-N 定义</b>。每个转折处有一道选择题，需要根据当时掌握的证据选出最佳答案。</p>
+          <p><b>计分</b>：每题首次答对计 100%，纠错后答对计 60%，看提示后答对计 30%；最终取各题平均分四舍五入。</p>
+          <p><b>反馈</b>：答错会出现明显提示和所选选项的解释，可重新作答；答对后出现确认提示才可继续。看提示不会直接通关。</p>
+          <p><b>成绩与留言</b>：通关后填写显示名，可把成绩上传到公开排行榜，或只写评论。发布需登录 GitHub，由你本人确认；排行榜从公开 Issues 自动汇总。</p>
+        </div>
+        <div class="btn-row"><button class="btn btn-primary" id="back-home2">返回封面</button></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+"use strict";
+
+/* ===== 配置（与 community/leaderboard.mjs 保持一致） ===== */
+const CONFIG = {
+  REPOSITORY: 'Wq-pW/math-analysis-limit',
+  APP: 'math-analysis',
+  FENCE: 'math-analysis',
+  CHAPTER_ID: 'limit',
+  CHAPTER_NAME: '极限的严格定义',
+};
+const SNAPSHOT_URL = `https://raw.githubusercontent.com/${CONFIG.REPOSITORY}/main/community.json`;
+const ISSUE_BASE = `https://github.com/${CONFIG.REPOSITORY}/issues/new`;
+
+/* ===== 章节内容 ===== */
+const CHAPTER_META = [
+  '领域：数学分析', '核心能力：用 ε-N 定义极限', '难度 ★★☆ 基础', '12 题', '15–20 分钟'
+];
+const INTRO = `两千年来，「无穷小」与「趋近」一直困扰着数学家。芝诺说阿喀琉斯追不上乌龟；牛顿和莱布尼茨的「无穷小量」被贝克莱讥为「已死量的幽灵」。直到柯西与魏尔斯特拉斯，人们才把「极限」锻造成一套无懈可击的语言——ε-N 定义。现在轮到你来当这位「审查官」：识破伪定义，击破反例，亲手写出极限的严格判决。`;
+
+/* type: story | question */
+const PAGES = [
+  { type:'story', tag:'序幕 · 芝诺的挑战', text:'公元前 5 世纪，芝诺抛出一个难题：阿喀琉斯永远追不上乌龟。因为每当他到达乌龟刚才的位置，乌龟又前进了一小段。如此「无限多步」，差距虽然越来越小，却似乎永远存在。这个论证究竟错在哪一步？' },
+  { type:'story', tag:'无穷小的幽灵', text:'一千多年后，牛顿与莱布尼茨用「无穷小量」建立了微积分，算出了惊人的结果。但贝克莱主教讥讽：无穷小既是零又不是零，分明是「已死量的幽灵」。数学家们心虚了——「趋近」到底是什么意思？' },
+  { type:'story', tag:'柯西的任务', text:'1821 年，柯西决心把「极限」说清楚。他提出：一个量「最终」与某个固定值的差，可以小于任意预先指定的正数。这个「任意小」的想法，正是破题的关键。你开始逐条审查各种「伪定义」。' },
+
+  { type:'question', id:'q1',
+    context:'直觉上，「差距越来越小」似乎就意味着「趋于某个值」。请先找出这个直觉的漏洞。',
+    stem:'下列哪个例子能最有力地说明：「差距越来越小」不足以推出「趋于 0」？',
+    hint:'「越来越小」只说了「在缩小」，没有说「能缩小到任意小」。找一个差距虽然一直缩小、却始终停在某个正数之上的例子。',
+    options:[
+      { text:'aₙ = 1/n —— 差距递减，且确实趋于 0', correct:false, why:'1/n 的确趋于 0，它是「好」的例子，帮不了我们找出伪定义的漏洞。' },
+      { text:'aₙ = 2 + 1/n —— 与 0 的差距递减，但下界是 2，永不趋于 0', correct:true, why:'2+1/n 与 0 的距离从 3 一路缩小，却永远大于 2——「缩小」不等于「缩到 0」。这正是芝诺论证偷换概念之处：步数再多、差距再小，关键要看它能否小于任意给定的小数。' },
+      { text:'aₙ = (−1)ⁿ —— 与 0 的差距恒为 1', correct:false, why:'(−1)ⁿ 与 0 的距离始终是 1，谈不上「越来越小」。' },
+      { text:'aₙ = n —— 差距越来越大', correct:false, why:'n 与 0 的距离越来越大，方向都反了。' }
+    ] },
+
+  { type:'story', tag:'任意小', text:'要堵住这个漏洞，数学家提出：无论误差 ε 有多小，都要求「从某一项 N 之后，所有 aₙ 都落在 L 的 ε 邻域内」。这个 ε 就是挑战者随手抛出的、任意小的误差。' },
+
+  { type:'question', id:'q2',
+    context:'误差 ε 是整个定义的核心，先把它理解到位。',
+    stem:'关于 ε 的角色，哪种理解是正确的？',
+    hint:'定义的威力在于「能应付任意小的误差」，所以 ε 必须是可变的、任意的。',
+    options:[
+      { text:'ε 是一个事先定死的、固定的小正数', correct:false, why:'如果 ε 是固定的，定义就名存实亡——它无法应付比 ε 更小的误差。' },
+      { text:'ε 是「任意给定」的正数，无论多小，都要找到对应的 N', correct:true, why:'极限的定义是「对任意 ε>0，存在 N……」——ε 是挑战者随口给出的任意小误差，我们要证明总能接得住。' },
+      { text:'ε 越大，定义越严格', correct:false, why:'恰好相反：ε 越小，要求越苛刻，定义才越严格。' },
+      { text:'ε 只能取 0.01 或更小', correct:false, why:'ε 可以是任何正数，不能只限定在某几个值。' }
+    ] },
+
+  { type:'question', id:'q3',
+    context:'ε 与 N 的先后、存在与任意的搭配，是 ε-N 定义最容易出错的地方。',
+    stem:'下列哪一句才是「aₙ → L」的正确逻辑表述？',
+    hint:'先有 ε 才能定 N。ε 越苛刻，需要的 N 往往越大——所以 N 必须依赖 ε。',
+    options:[
+      { text:'存在 N，对任意 ε>0，当 n>N 时 |aₙ − L| < ε', correct:false, why:'这个表述让同一个 N 应付所有 ε，通常不成立——它其实是一种更强的「一致」要求。' },
+      { text:'对任意 ε>0，存在 N，当 n>N 时 |aₙ − L| < ε', correct:true, why:'顺序至关重要：先给定任意小的 ε，再据此找 N；N 一般随 ε 变小而变大。' },
+      { text:'对任意 ε>0，对任意 N，当 n>N 时 |aₙ − L| < ε', correct:false, why:'这要求对「所有」N 都成立，太强了——即使 N=0 也要成立，几乎不可能。' },
+      { text:'存在 ε>0，存在 N，当 n>N 时 |aₙ − L| < ε', correct:false, why:'只需「某一个」ε 就能交代，太弱了，不足以刻画「任意接近」。' }
+    ] },
+
+  { type:'story', tag:'锻造 ε-N', text:'现在，审查官，标准已经立起来了：对任意 ε>0，存在 N，使 n>N 时 |aₙ − L| < ε。剩下的，是用它去检验一个又一个具体的数列。先从最简单的 aₙ = 1/n 开始。' },
+
+  { type:'question', id:'q4',
+    context:'用定义证明 1/n → 0。挑战者先给出一个具体的 ε = 0.01。',
+    stem:'要使 n>N 时都有 |1/n − 0| < 0.01，即 1/n < 0.01，N 至少应取？',
+    hint:'1/n < 0.01 等价于 n > 100。N 必须严格保证 n>N 的每一项都满足。',
+    options:[
+      { text:'N = 100', correct:true, why:'n>100 时 n≥101，故 1/n ≤ 1/101 < 1/100 = 0.01。N=100 即可（N 不必是「最小」的那个，但 N=99 会让 n=100 这一项漏网）。' },
+      { text:'N = 99', correct:false, why:'n=100 时 1/100 = 0.01，并不「小于」0.01，这一项会漏网。' },
+      { text:'N = 50', correct:false, why:'n=51 时 1/51 ≈ 0.0196 > 0.01，远未达标。' },
+      { text:'N = 10', correct:false, why:'n=11 时 1/11 ≈ 0.09 > 0.01，差得更远。' }
+    ] },
+
+  { type:'question', id:'q5',
+    context:'挑战者不肯罢休：ε=0.01 你能接住，那「任意」的 ε 呢？',
+    stem:'对「任意」的 ε>0，要证明 1/n → 0，可取 N 为？',
+    hint:'由 1/n < ε 得 n > 1/ε。利用「阿基米德性质」，任何正数都有一个更大的自然数。',
+    options:[
+      { text:'N = ⌈1/ε⌉（不小于 1/ε 的整数）', correct:true, why:'对任意 ε>0，取 N = ⌈1/ε⌉（向上取整），则 n>N 时 n > 1/ε，故 1/n < ε。阿基米德性质保证这样的自然数 N 一定存在。' },
+      { text:'N = ε', correct:false, why:'ε 是任意小正数，本身未必是自然数，也不满足 N > 1/ε 的要求。' },
+      { text:'N = 1/ε，不必取整', correct:false, why:'N 必须是自然数（项的下标），1/ε 可能不是整数。' },
+      { text:'无法统一给出，因为 ε 可以任意小', correct:false, why:'正是 ε 任意小，才需要 N 随 ε 变化——由阿基米德性质，总存在自然数 N > 1/ε。' }
+    ] },
+
+  { type:'story', tag:'经受考验', text:'有了 ε-N，1/n → 0 这类「显然」的结论终于有了无懈可击的证明。但定义的价值，在于它也能判定那些「不显然」的数列——甚至是发散数列。' },
+
+  { type:'question', id:'q6',
+    context:'一个来回跳动的数列，定义能给它一个判决吗？',
+    stem:'数列 aₙ = (−1)ⁿ（1, −1, 1, −1, …）是否收敛？',
+    hint:'收敛要求「最终」整体落入某一常数的任意小邻域。这个数列在两个值之间来回跳。',
+    options:[
+      { text:'收敛于 1', correct:false, why:'奇数项取 1，但偶数项全是 −1，与 1 的距离始终是 2。' },
+      { text:'收敛于 −1', correct:false, why:'偶数项取 −1，但奇数项全是 1，与 −1 的距离始终是 2。' },
+      { text:'收敛于 0', correct:false, why:'0 与每一项的距离都是 1，根本谈不上「任意接近 0」。' },
+      { text:'发散', correct:true, why:'若收敛于 L，取 ε = 1/2，则 1 与 −1 相距 2，不可能同时落入 L 的半径 1/2 的小邻域；而 n>N 中既有取 1 的项也有取 −1 的项，矛盾。故发散。' }
+    ] },
+
+  { type:'question', id:'q7',
+    context:'如果两个人都说自己找到了极限，定义能保证他们不打架吗？',
+    stem:'若 aₙ → L 且 aₙ → M，则关于 L 与 M 的关系，正确的是？',
+    hint:'反证：若 L≠M，取 ε = |L−M|/2，看看能否同时落入两个不相交的邻域。',
+    options:[
+      { text:'L 与 M 可能不相等', correct:false, why:'若极限不唯一，定义就失去了意义——它必须保证唯一。' },
+      { text:'必有 L = M（极限唯一）', correct:true, why:'反证。若 L≠M，取 ε=|L−M|/2>0。aₙ 最终要同时满足 |aₙ−L|<ε 与 |aₙ−M|<ε，但 (L−ε, L+ε) 与 (M−ε, M+ε) 不相交，矛盾。' },
+      { text:'无法确定', correct:false, why:'定义足以给出确定的结论——极限若存在必唯一。' },
+      { text:'L 与 M 相差不超过任意 ε', correct:false, why:'「不超过任意 ε」的严谨结论正是 L=M，含糊的说法不算证明。' }
+    ] },
+
+  { type:'question', id:'q8',
+    context:'收敛数列的整体形状，也受定义约束。',
+    stem:'收敛数列一定具有下列哪个性质？',
+    hint:'收敛意味着「绝大部分项」挤在极限附近；只有有限项可能跑远。',
+    options:[
+      { text:'有界', correct:true, why:'收敛数列必有界：取 ε=1，除前 N 项外都落在 (L−1, L+1) 内；前面有限项连同这个区间，整体上有界。注意收敛数列不必单调，例 (−1)ⁿ/n → 0。' },
+      { text:'单调', correct:false, why:'(−1)ⁿ/n → 0 收敛却来回摆动，并不单调。' },
+      { text:'存在唯一的「最大项」', correct:false, why:'收敛数列可以没有最大项，例如 1 − 1/n 单调趋于 1 却永远取不到 1。' },
+      { text:'无界', correct:false, why:'收敛数列必有界，无界数列（如 aₙ = n）必发散。' }
+    ] },
+
+  { type:'question', id:'q9',
+    context:'反过来，什么条件下能「保证」收敛？',
+    stem:'若 aₙ 单调递增且有上界，则？',
+    hint:'「单调有界定理」是实数完备性的重要推论。',
+    options:[
+      { text:'一定发散', correct:false, why:'单调递增又有上界，说明它被「卡」在一个方向上，不可能无限增长。' },
+      { text:'一定收敛', correct:true, why:'单调递增且有上界的数列必收敛，且极限恰为 {aₙ} 的上确界。这是实数连续性的体现。' },
+      { text:'可能收敛也可能发散', correct:false, why:'在实数范围内，单调有界数列「必定」收敛，没有第二种可能。' },
+      { text:'收敛，但极限不是它的上确界', correct:false, why:'单调递增有上界时，极限正是它的上确界。' }
+    ] },
+
+  { type:'question', id:'q10',
+    context:'从收敛数列里按顺序挑出一些项，会破坏收敛性吗？',
+    stem:'若 aₙ → L，则它的任意一个子列？',
+    hint:'子列是原数列「按顺序挑出的一部分项」，索引越来越大。',
+    options:[
+      { text:'也收敛于 L', correct:true, why:'收敛数列的任一子列都收敛于同一极限 L。反之，若存在两个子列收敛于不同极限，原数列必发散（可用来重新检验 (−1)ⁿ 为何发散）。' },
+      { text:'可能发散', correct:false, why:'整体收敛时，任何按顺序抽取的子列都被同一套 ε-N 逻辑「锁住」，不会发散。' },
+      { text:'收敛于 L+1', correct:false, why:'子列不会凭空多出一个 1。' },
+      { text:'收敛于 |L|', correct:false, why:'取绝对值没有依据；例如 L=−1 时 |L|=1 显然不是子列的极限。' }
+    ] },
+
+  { type:'question', id:'q11',
+    context:'要证明发散，常需要把定义「反过来说」。',
+    stem:'「aₙ 不收敛于 L」的 ε-N 语言表述是？',
+    hint:'否定时，∀ 与 ∃ 互换：∀ε∃N 变成 ∃ε∀N，最后的不等式也要取反。',
+    options:[
+      { text:'存在 ε>0，对任意 N，都存在 n>N 使 |aₙ − L| ≥ ε', correct:true, why:'原命题 ∀ε>0 ∃N ∀n>N (|aₙ−L|<ε)；否定为 ∃ε>0 ∀N ∃n>N (|aₙ−L|≥ε)。即「存在一个正的误差，无论取多大的 N，总能找到一项越界」。' },
+      { text:'对任意 ε>0，存在 N，存在 n>N 使 |aₙ − L| ≥ ε', correct:false, why:'这个表述太弱：它只要求「有一个」ε 与 N 的组合，不保证对「任意大」的 N 都有越界项。' },
+      { text:'存在 ε>0，存在 N，对任意 n>N 使 |aₙ − L| ≥ ε', correct:false, why:'「对任意 n>N」全部越界，是对发散的一种描述，但不是「不收敛于 L」的正确否定——量词顺序弄反了。' },
+      { text:'对任意 ε>0，对任意 N，对任意 n>N 使 |aₙ − L| ≥ ε', correct:false, why:'这要求对任意小的 ε 都「始终越界」，比「不收敛」强得多，几乎不可能成立。' }
+    ] },
+
+  { type:'question', id:'q12',
+    context:'最后一题，把整套工具用在一个真正的计算上。',
+    stem:'数列 aₙ = (2n+1)/(3n+5) 的极限是？',
+    hint:'分子分母同除以 n，让含 1/n 的项趋于 0。',
+    options:[
+      { text:'2/3', correct:true, why:'(2n+1)/(3n+5) = (2 + 1/n)/(3 + 5/n) → 2/3。严格证明可对任意 ε 取足够大的 N。' },
+      { text:'2/5', correct:false, why:'分母是 3n+5，同除 n 后分母趋于 3 而非 5，别把常数项与系数混淆。' },
+      { text:'1', correct:false, why:'分子分母的「领头系数」分别是 2 与 3，极限应为 2/3。' },
+      { text:'发散', correct:false, why:'分子分母同阶，比值趋于 2/3，是收敛的。' }
+    ] },
+
+  { type:'story', tag:'结局', text:'你用 ε-N 这把尺子，量出了收敛与发散、唯一性与有界性、单调与子列的边界。曾经模糊的「趋近」，如今成了一台精密的机器。极限的严格定义，正是现代数学分析的基石——欢迎来到分析的世界。' },
+];
+
+const QUESTION_COUNT = PAGES.filter(p => p.type === 'question').length;
+
+/* ===== 状态 ===== */
+let pageIndex = 0;
+let marks = {};            // qid -> 'f' | 'r' | 'h'
+let attempts = 0;          // 当前题已尝试次数
+let usedHint = false;
+let rating = null;
+let runId = crypto.randomUUID ? crypto.randomUUID() : ('' + Math.random()).slice(2);
+
+/* ===== 工具 ===== */
+const $ = id => document.getElementById(id);
+function show(id){ ['landing','story','question','result','board','help'].forEach(s => $(s).classList.add('hidden')); $(id).classList.remove('hidden'); window.scrollTo(0,0); }
+function el(html){ const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+function stars(n){ return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); }
+
+function scoreMarks(marks){
+  const f = Object.values(marks).filter(m => m === 'f').length;
+  const r = Object.values(marks).filter(m => m === 'r').length;
+  const h = Object.values(marks).filter(m => m === 'h').length;
+  return { score: Math.round((100*f + 60*r + 30*h) / QUESTION_COUNT), f, r, h, total: QUESTION_COUNT };
+}
+function verdict(score){
+  if (score >= 90) return '出色！你已经掌握了极限的严格定义。';
+  if (score >= 80) return '很好，个别地方再琢磨一下就能滴水不漏。';
+  if (score >= 60) return '不错，建议回看提示中的反例与量词顺序。';
+  return '再试一次吧，重点看 ε 的任意性与量词顺序。';
+}
+
+/* ===== 渲染 ===== */
+function renderLanding(){
+  $('landing-title').textContent = CONFIG.CHAPTER_NAME;
+  $('landing-subtitle').textContent = '把「趋近」变成一个经得起推敲的定义';
+  $('landing-chips').innerHTML = CHAPTER_META.map(c => `<span class="chip">${c}</span>`).join('');
+  $('landing-intro').textContent = INTRO;
+}
+function setProgress(n){
+  const total = PAGES.length;
+  $('story-step').textContent = `第 ${n + 1} / ${total} 页`;
+  $('story-bar').style.width = (100 * n / total) + '%';
+}
+function renderStory(i){
+  show('story');
+  const p = PAGES[i];
+  setProgress(i);
+  $('story-tag').textContent = p.tag;
+  $('story-text').innerHTML = `<p>${p.text}</p>`;
+  $('story-next').onclick = () => advance();
+}
+function renderQuestion(i){
+  show('question');
+  const p = PAGES[i];
+  const qNo = PAGES.slice(0, i + 1).filter(x => x.type === 'question').length;
+  $('q-step').textContent = `第 ${i + 1} / ${PAGES.length} 页 · 题 ${qNo} / ${QUESTION_COUNT}`;
+  $('q-bar').style.width = (100 * i / PAGES.length) + '%';
+  $('q-context').textContent = p.context;
+  $('q-stem').textContent = p.stem;
+  $('q-options').innerHTML = '';
+  $('q-feedback').innerHTML = '';
+  $('q-next-row').classList.add('hidden');
+  attempts = 0; usedHint = false;
+  const keys = ['A','B','C','D'];
+  p.options.forEach((o, idx) => {
+    const btn = el(`<button class="opt"><span class="key">${keys[idx]}</span><span>${o.text}</span></button>`);
+    btn.onclick = () => answer(p, o, btn, idx);
+    $('q-options').appendChild(btn);
+  });
+  $('hint-btn').onclick = () => revealHint(p);
+  $('q-next').onclick = () => advance();
+}
+function revealHint(p){
+  if (usedHint) return;
+  usedHint = true;
+  const box = el(`<div class="hintbox"><b>提示</b>：${p.hint}</div>`);
+  $('q-feedback').appendChild(box);
+  $('hint-btn').disabled = true;
+}
+function answer(p, o, btn, idx){
+  attempts += 1;
+  const keys = ['A','B','C','D'];
+  if (o.correct){
+    const mark = (!usedHint && attempts === 1) ? 'f' : (usedHint ? 'h' : 'r');
+    marks[p.id] = mark;
+    lockOptions();
+    btn.classList.add('correct');
+    btn.querySelector('.key').textContent = '✓';
+    const fb = el(`<div class="feedback ok"><span class="flag">答对了${mark === 'f' ? ' · 首次答对' : mark === 'r' ? ' · 纠错后答对' : ' · 借助提示答对'}</span>${o.why}</div>`);
+    $('q-feedback').appendChild(fb);
+    $('hint-btn').disabled = true;
+    $('q-next-row').classList.remove('hidden');
+  } else {
+    btn.classList.add('wrong');
+    btn.querySelector('.key').textContent = '✗';
+    btn.disabled = true;
+    const fb = el(`<div class="feedback bad"><span class="flag">这不对</span>${o.why}</div>`);
+    $('q-feedback').appendChild(fb);
+  }
+}
+function lockOptions(){
+  [...document.querySelectorAll('#q-options .opt')].forEach(b => b.disabled = true);
+}
+function advance(){
+  pageIndex += 1;
+  if (pageIndex >= PAGES.length){ renderResult(); return; }
+  const p = PAGES[pageIndex];
+  p.type === 'story' ? renderStory(pageIndex) : renderQuestion(pageIndex);
+}
+
+/* ===== 结算 ===== */
+function renderResult(){
+  show('result');
+  const s = scoreMarks(marks);
+  $('res-title').textContent = `《${CONFIG.CHAPTER_NAME}》`;
+  $('res-score').textContent = s.score;
+  $('res-verdict').textContent = verdict(s.score);
+  $('res-stats').innerHTML =
+    `<div class="stat"><div class="n">${s.f}</div><div class="l">首次答对</div></div>` +
+    `<div class="stat"><div class="n">${s.r}</div><div class="l">纠错后答对</div></div>` +
+    `<div class="stat"><div class="n">${s.h}</div><div class="l">借助提示</div></div>`;
+  const review = PAGES.filter(p => p.type === 'question' && marks[p.id] && marks[p.id] !== 'f');
+  $('res-review-title').textContent = review.length ? '值得回看的推理' : '全部一次答对，无需回看';
+  $('res-review').innerHTML = review.length
+    ? review.map((p,i) => {
+        const qNo = PAGES.slice(0, PAGES.indexOf(p) + 1).filter(x => x.type === 'question').length;
+        const m = marks[p.id];
+        return `<li><span class="pill ${m}">${m === 'r' ? '纠错' : '提示'}</span>题 ${qNo}：${p.stem}</li>`;
+      }).join('')
+    : '';
+  rating = null; renderStars();
+  $('nick').value = localStorage.getItem('nick') || '';
+}
+function renderStars(){
+  [...document.querySelectorAll('#stars span')].forEach(s => s.classList.toggle('on', Number(s.dataset.v) <= (rating || 0)));
+}
+$('stars').onclick = e => {
+  const v = Number(e.target.dataset.v);
+  if (v){ rating = rating === v ? null : v; renderStars(); }
+};
+
+/* ===== 投稿（与 leaderboard.mjs 保持格式一致） ===== */
+function buildPacket(){
+  const ordered = PAGES.filter(p => p.type === 'question').map(p => marks[p.id]);
+  return { version: 1, chapter: CONFIG.CHAPTER_ID, runId, completedAt: new Date().toISOString(), marks: ordered.join('') };
+}
+function draft(record, score){
+  const intro = record.kind === 'score'
+    ? `我完成了《${CONFIG.CHAPTER_NAME}》，本次自报成绩为 **${score} / 100**。`
+    : `我想对《${CONFIG.CHAPTER_NAME}》提交评论。`;
+  const body = [
+    intro, '',
+    '本帖公开发布后，GitHub账号、显示名、成绩及填写的评论会进入游戏社区。关闭本帖可从下次更新的榜单中撤回。成绩用于交流，不作为正式考核凭证。', '',
+    '下面是游戏生成的提交记录；请保留记录格式。', '',
+    '```' + CONFIG.FENCE, JSON.stringify(record, null, 2), '```', ''
+  ].join('\n');
+  const url = new URL(ISSUE_BASE);
+  url.searchParams.set('template', record.kind === 'score' ? 'score.md' : 'comment.md');
+  url.searchParams.set('title', `${record.kind === 'score' ? '成绩' : '评论'} · ${CONFIG.CHAPTER_NAME}`);
+  url.searchParams.set('body', body);
+  const copyRequired = url.href.length > 7000;
+  if (copyRequired) url.searchParams.delete('body');
+  return { url: url.href, body, copyRequired };
+}
+function readForm(){
+  const nickname = $('nick').value.trim();
+  const comment = $('cmt').value.trim();
+  if (nickname.length > 24){ alert('显示名最多 24 字'); return null; }
+  if (comment.length > 500){ alert('评论最多 500 字'); return null; }
+  localStorage.setItem('nick', nickname);
+  return { nickname, comment, rating };
+}
+function openDraft(rec, score){
+  const d = draft(rec, score);
+  if (d.copyRequired){
+    navigator.clipboard && navigator.clipboard.writeText(d.body).catch(()=>{});
+    prompt('链接过长，已尝试复制记录内容。请在新打开的 GitHub 页中粘贴以下完整内容：', d.body);
+  }
+  window.open(d.url, '_blank', 'noopener');
+}
+$('upload-btn').onclick = () => {
+  const f = readForm(); if (!f) return;
+  if (Object.keys(marks).length < QUESTION_COUNT){ alert('请先完成全部题目再上传成绩'); return; }
+  const packet = buildPacket();
+  const rec = { app: CONFIG.APP, version: 1, kind: 'score', chapter: CONFIG.CHAPTER_ID, nickname: f.nickname, comment: f.comment, rating: f.rating, packet };
+  openDraft(rec, scoreMarks(marks).score);
+};
+$('comment-btn').onclick = () => {
+  const f = readForm(); if (!f) return;
+  const rec = { app: CONFIG.APP, version: 1, kind: 'comment', chapter: CONFIG.CHAPTER_ID, nickname: f.nickname, comment: f.comment, rating: f.rating };
+  openDraft(rec, null);
+};
+$('again-btn').onclick = () => { marks = {}; pageIndex = 0; runId = crypto.randomUUID ? crypto.randomUUID() : (''+Math.random()).slice(2); renderLanding(); };
+
+/* ===== 排行榜 ===== */
+async function loadBoard(){
+  show('board');
+  $('board-entries').innerHTML = `<div class="empty">正在加载…</div>`;
+  $('board-comments').innerHTML = '';
+  $('board-updated').textContent = '';
+  try{
+    const res = await fetch(SNAPSHOT_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    renderBoard(data);
+  }catch(e){
+    $('board-entries').innerHTML = `<div class="empty">榜单加载失败，请稍后点击「刷新」重试。</div>`;
+  }
+}
+function renderBoard(data){
+  $('board-updated').textContent = data.updatedAt ? `更新于 ${new Date(data.updatedAt).toLocaleString('zh-CN')}` : '';
+  const entries = data.entries || [];
+  if (!entries.length){
+    $('board-entries').innerHTML = `<div class="empty">暂无成绩，来当第一个通关的人吧。</div>`;
+  } else {
+    $('board-entries').innerHTML = `<table><thead><tr><th>名次</th><th>玩家</th><th>成绩</th><th>首次/纠错/提示</th><th>时间</th></tr></thead><tbody>` +
+      entries.map(e => `<tr>
+        <td class="rank">${e.rank}</td>
+        <td>${escapeHtml(e.nickname)}</td>
+        <td><b>${e.score}</b></td>
+        <td>${e.firstCorrectCount}/${e.correctedCount}/${e.hintedCount}</td>
+        <td>${new Date(e.completedAt).toLocaleDateString('zh-CN')}</td>
+      </tr>`).join('') + `</tbody></table>`;
+  }
+  const comments = data.comments || [];
+  if (!comments.length){
+    $('board-comments').innerHTML = `<div class="empty">还没有留言。</div>`;
+  } else {
+    $('board-comments').innerHTML = comments.map(c => `<div class="comment-item">
+      <div class="meta">${escapeHtml(c.nickname)} ${c.rating ? '<span class="stars-sm">'+stars(c.rating)+'</span>' : ''} · ${new Date(c.submittedAt).toLocaleString('zh-CN')}</div>
+      ${c.body ? `<div class="body">${escapeHtml(c.body)}</div>` : ''}
+    </div>`).join('');
+  }
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ===== 事件 ===== */
+$('start-btn').onclick = () => { pageIndex = 0; if (Object.keys(marks).length === QUESTION_COUNT){ if(!confirm('你已有通关记录，是否重新开始？')) { renderLanding(); return; } marks = {}; runId = crypto.randomUUID ? crypto.randomUUID() : (''+Math.random()).slice(2); } renderStory(0); };
+$('board-btn').onclick = loadBoard;
+$('help-btn').onclick = () => show('help');
+$('refresh-btn').onclick = loadBoard;
+$('back-home1').onclick = renderLanding;
+$('back-home2').onclick = renderLanding;
+
+/* ===== 启动 ===== */
+renderLanding();
+</script>
+</body>
+</html>
