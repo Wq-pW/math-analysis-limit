@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-17T12:22:07.325Z",
+  "updatedAt": "2026-09-21T00:36:32.594Z",
   "repository": "Wq-pW/math-analysis-limit",
   "source": "github-issues",
   "selfReported": true,
-  "totalPlayers": 1,
+  "totalPlayers": 2,
   "entries": [
     {
       "rank": 1,
@@ -19,9 +19,32 @@
       "hintedCount": 0,
       "totalQuestions": 12,
       "completedAt": "2026-09-17T12:21:52.686Z"
+    },
+    {
+      "rank": 2,
+      "login": "taomuzhaotao",
+      "nickname": "tao",
+      "submittedAt": "2026-09-21T00:36:23.000Z",
+      "issueNumber": 2,
+      "issueUrl": "https://github.com/Wq-pW/math-analysis-limit/issues/2",
+      "score": 97,
+      "firstCorrectCount": 11,
+      "correctedCount": 1,
+      "hintedCount": 0,
+      "totalQuestions": 12,
+      "completedAt": "2026-09-21T00:35:54.101Z"
     }
   ],
   "comments": [
+    {
+      "login": "taomuzhaotao",
+      "nickname": "tao",
+      "submittedAt": "2026-09-21T00:36:23.000Z",
+      "issueNumber": 2,
+      "issueUrl": "https://github.com/Wq-pW/math-analysis-limit/issues/2",
+      "body": "数理衔接课涌上心头",
+      "rating": 5
+    },
     {
       "login": "yaoyuzhang1",
       "nickname": "无名氏",
