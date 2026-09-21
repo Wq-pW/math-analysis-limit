@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T00:36:32.594Z",
+  "updatedAt": "2026-09-21T12:12:44.852Z",
   "repository": "Wq-pW/math-analysis-limit",
   "source": "github-issues",
   "selfReported": true,
-  "totalPlayers": 2,
+  "totalPlayers": 3,
   "entries": [
     {
       "rank": 1,
@@ -33,9 +33,32 @@
       "hintedCount": 0,
       "totalQuestions": 12,
       "completedAt": "2026-09-21T00:35:54.101Z"
+    },
+    {
+      "rank": 3,
+      "login": "Takahashi-Akitsu",
+      "nickname": "?!数分!?",
+      "submittedAt": "2026-09-21T12:12:29.000Z",
+      "issueNumber": 3,
+      "issueUrl": "https://github.com/Wq-pW/math-analysis-limit/issues/3",
+      "score": 93,
+      "firstCorrectCount": 10,
+      "correctedCount": 2,
+      "hintedCount": 0,
+      "totalQuestions": 12,
+      "completedAt": "2026-09-21T12:12:20.586Z"
     }
   ],
   "comments": [
+    {
+      "login": "Takahashi-Akitsu",
+      "nickname": "?!数分!?",
+      "submittedAt": "2026-09-21T12:12:29.000Z",
+      "issueNumber": 3,
+      "issueUrl": "https://github.com/Wq-pW/math-analysis-limit/issues/3",
+      "body": "",
+      "rating": 5
+    },
     {
       "login": "taomuzhaotao",
       "nickname": "tao",
